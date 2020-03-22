@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:400,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js" defer></script>
+  </head>
+  <style>
+  </style>
+  <body>
+    <div id="menu">
+      <div x-data="{ tab: 'inicio' }">
+        <div class="menuButtons">
+          <a :class="{ 'active': tab === 'inicio' }" @click="tab = 'inicio'"><span data-hover="Inicio">Inicio</span></a>
+          <a :class="{ 'active': tab === 'carros' }" @click="tab = 'carros'"><span data-hover="Carros">Carros</span></a>
+          <a id="closeMenu"><span data-hover="MENU">Fechar</span></a>
+        </div>
+
+       <div id="content">
+          <div x-show="tab === 'inicio'">
+            O <span class="linethrough">melhor</span> pior servidor de GTA
+
+          </div>
+          <div x-show="tab === 'carros'">
+            <button id="removeCars">Remover carros</button>
+
+          </div>
+       </div>
+      </div>
+    </div>
+
+    <style>
+      * {
+        font-family: 'Quicksand', sans-serif;
+      }
+
+      .linethrough {
+        text-decoration: line-through;
+      }
+
+      #menu {
+        width: 450px;
+        border: 1px solid #c1c1c1;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 5px;
+        border-radius: 3px;
+        box-shadow: 1px 1px 10px black;
+      }
+
+      .menuButtons .active {
+        font-weight: bold;
+        color: dodgerblue;
+      }
+
+      #content {
+        text-align: center;
+      }
+
+      button {
+        font-weight: bold;
+      }
+      
+      .menuButtons a {
+        cursor: pointer;
+        overflow: hidden;
+        padding: 0 4px;
+        height: 1em;
+        position: relative;
+        display: inline-block;
+        margin: 15px 25px;
+        outline: none;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 400;
+        text-shadow: 0 0 1px rgba(255,255,255,0.3);
+        font-size: 1.35em;
+        transition: all .5s;
+      }
+
+      .menuButtons a span {
+        position: relative;
+        display: inline-block;
+        -webkit-transition: -webkit-transform 0.3s;
+        -moz-transition: -moz-transform 0.3s;
+        transition: transform 0.3s;
+      }
+
+      .menuButtons a span::before {
+        position: absolute;
+        top: 100%;
+        content: attr(data-hover);
+        font-weight: bold;
+        -webkit-transform: translate3d(0,0,0);
+        -moz-transform: translate3d(0,0,0);
+        transform: translate3d(0,0,0);
+      }
+
+      .menuButtons a:hover span,
+      .menuButtons a:focus span {
+        -webkit-transform: translateY(-100%);
+        -moz-transform: translateY(-100%);
+        transform: translateY(-100%);
+      }
+
+      button {
+        margin: 0;
+        border: 1px solid #0654fe;
+        padding: 3px 10px;
+        color: white;
+        border-radius: 4px;
+        outline: 0;
+        background: linear-gradient(to top, #147bfe, #67acf9);
+        cursor: pointer;
+      }
+      button:active {
+        color: #0654fe;
+        background: linear-gradient(to top, #d6d6d6, #f6f6f6);
+      }
+
+      .btn-default {
+        margin: 0;
+        border: 1px solid #888888;
+        padding: 3px 10px;
+        color: #434343;
+        border-radius: 4px;
+        outline: 0;
+        background: linear-gradient(to top, #d6d6d6, #f6f6f6);
+        cursor: pointer;
+      }
+      .btn-default:active {
+        color: #ededed;
+        background: linear-gradient(to top, #7d7d7d, #a1a1a1);
+      }
+
+    </style>
+    <script>
+        document.querySelector('#removeCars').addEventListener('click', () => {
+            window.alt.emit("rmv");
+y>
+</html>

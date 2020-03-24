@@ -1,6 +1,24 @@
 import * as alt from 'alt';
-import * as native from 'natives'
 import * as chat from 'chat'
+import * as native from 'natives'
+
+let myID = 0
+let blips = {}
+let ped = null
+native.setPedInfiniteAmmoClip(ped, true)
+
+alt.onServer('playerConnect', player => {
+    myID = player.id
+   
+    native.setPlayerInvincible(player, true);
+    let ped = native.getPlayerPed(player);
+    alt.log(player)
+
+    native.setPlayerParachuteTintIndex(ped, 3);
+    native.setPedInfiniteAmmoClip(ped, true);
+    alt.log(ped)
+})
+
 
 let view = new alt.WebView("http://resource/client/html/index.html")
 let speedoShown = false
@@ -14,12 +32,7 @@ alt.setInterval(() => {
 }, 1)
 
 
-let blips = {}
-let myID = 0
 
-alt.onServer('myID', playerID => {
-    myID = playerID
-})
 
 alt.onServer('createPlayerBlip', (playerID, playerName, pos) => {
     if (myID == playerID) {
@@ -167,7 +180,7 @@ alt.onServer('fix', vehicle => {
 
 alt.onServer('obj', pos =>{
     let obj = native.getHashKey('apa_prop_flag_brazil');
-    native.createObject(obj, pos.x, pos.y, pos.z, true, false, false);
+    // native.createObject(obj, pos.x, pos.y, pos.z, true, false, false);
 })
 
 
@@ -181,6 +194,35 @@ alt.onServer('hora', hour => {
     }
 
     native.setClockTime(hour, 1, 1)
+})
+
+
+alt.onServer('god', playerID => {
+    native.setPlayerInvincible(playerID, true);
+    let ped = native.getPlayerPed(playerID);
+    alt.log(playerID)
+
+    native.setPlayerParachuteTintIndex(ped, 3);
+    native.setPedInfiniteAmmoClip(ped, true);
+    alt.log(ped)
+})
+
+alt.onServer('godoff', playerID => {
+    native.setPlayerInvincible(playerID, false);
+    alt.log(playerID)
+})
+
+alt.onServer('setColete', playerID => {
+    let ped = native.getPlayerPed(playerID);
+    native.setPedArmour(ped, 150);
+})
+
+alt.onServer('tag', player => {
+    let ped = native.getPlayerPed(player);
+    let name = native.getPlayerName(player);
+    let gamerTagID = native.createMpGamerTagWithCrewColor(ped, name, true, false, 'Armario', 0, 145, 35, 223);
+    native.setMpGamerTagVisibility(gamerTagID, 0, true, 2);
+    alt.log(gamerTagID)
 })
 
 

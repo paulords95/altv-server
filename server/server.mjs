@@ -4,6 +4,7 @@ import peds from '../client/peds.js'
 import vehicles from '../client/vehicles.js'
 import weaponList from '../client/weapons.js'
 
+
 let globalCars = {}
 let globalPlayerPos = {}
 
@@ -40,7 +41,8 @@ function removePlayerBlips() {
 }
 
 alt.on('playerConnect', (player) => {
-    alt.emitClient(player, 'myID', player.id)
+    alt.emitClient(player, 'playerConnect', player)
+
 
     globalCars[player.id] = []
     chat.broadcast(`${player.name} conectado`)
@@ -50,6 +52,9 @@ alt.on('playerConnect', (player) => {
     let ped = pedArr[Math.floor(Math.random() * arrLen)]
 
     player.model = ped
+    for (let key in weaponList) {
+        player.giveWeapon(weaponList[key], 1000, true)
+    }
 
     if (globalPlayerPos[player.socialId] !== undefined) {
         player.spawn(globalPlayerPos[player.socialId].x, globalPlayerPos[player.socialId].y, globalPlayerPos[player.socialId].z, 1000)
@@ -301,8 +306,14 @@ chat.registerCmd('hora', (player, args) => {
     alt.emitClient(null, 'hora', args[0])
 })
 
-
-
 chat.registerCmd('obj', (player) => {
     alt.emitClient(null, 'obj', player.pos)
+})
+
+chat.registerCmd('colete', (player) => {
+    alt.emitClient(null, 'setColete', player)
+})
+
+chat.registerCmd('gamertag', (player) => {
+    alt.emitClient(null, 'tag', player)
 })

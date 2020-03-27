@@ -1,12 +1,14 @@
 import * as alt from 'alt'
 import * as chat from 'chat'
-import peds from '../client/peds.js'
-import vehicles from '../client/vehicles.js'
-import weaponList from '../client/weapons.js'
+import peds from './peds.js'
+import vehicles from './vehicles.js'
+import weaponList from './weapons.js'
+import { createEntity, destroyEntity } from './streamer.mjs'
 
 
 let globalCars = {}
 let globalPlayerPos = {}
+const entityIds = [];
 
 const positions = {
     'default': [-1062.4483642578125, -2985.73193359375, 13.17138671875],
@@ -39,6 +41,10 @@ function removePlayerBlips() {
         alt.emitClient(null, 'deletePlayerBlip', p.id)
     }
 }
+
+alt.on('keydown', (player, vehicle) => {
+    alt.emitClient(player, 'keydown', vehicle)
+})
 
 alt.on('playerConnect', (player) => {
     alt.emitClient(player, 'playerConnect', player)
@@ -155,11 +161,12 @@ chat.registerCmd('anyveh', (player) => {
 
 chat.registerCmd('tp', (player, args) => {
     if (args.length === 0) {
-        chat.send(player, `Você deve informar a posição, jogador ou cordenadas`)
-        chat.send(player, `Exemplos:`)
-        chat.send(player, `/tp the4fun`)
-        chat.send(player, `/tp pallets`)
-        chat.send(player, `/tp 813 -279`)
+        alt.emitClient(player, 'tpToWayPoint')
+        // chat.send(player, `Você deve informar a posição, jogador ou cordenadas`)
+        // chat.send(player, `Exemplos:`)
+        // chat.send(player, `/tp the4fun`)
+        // chat.send(player, `/tp pallets`)
+        // chat.send(player, `/tp 813 -279`)
         return
     }
 
@@ -167,7 +174,7 @@ chat.registerCmd('tp', (player, args) => {
         for (let p of alt.Player.all) {
             if (p.name.toLowerCase() === args[0].toLowerCase()) {
                 player.spawn(p.pos.x, p.pos.y, p.pos.z)
-                chat.broadcast(`${player.name}: /tp ${args[0]}`)
+                chat.broadcast(`{00FF00}${player.name}: /tp ${args[0]}`)
                 return;
             }
         }
@@ -187,6 +194,11 @@ chat.registerCmd('tp', (player, args) => {
     if (args.length === 2) {
         player.spawn(args[0], args[1], 100, 1000)
         chat.broadcast(`${player.name}: /tp ${args[0]} ${args[1]}`)
+    }
+
+    if (args.length === 3) {
+        player.spawn(args[0], args[1],args[2], 1000)
+        chat.broadcast(`${player.name}: /tp ${args[0]} ${args[1]} ${args[2]}`)
     }
 })
 
@@ -211,6 +223,10 @@ alt.on('resourceStop', () => {
 
         delete globalCars[playerID]
     }
+
+    for (let id in entityIds) {
+       destroyEntity(id)
+    }
 })
 
 alt.onClient('rmv', (player) => {
@@ -222,6 +238,11 @@ alt.onClient('rmv', (player) => {
     }
 
     chat.send(player, `Carros removidos`)
+})
+
+alt.onClient('setPos', (player, pos) => {
+    pos.z = 1000
+    player.pos = pos
 })
 
 chat.registerCmd('skin', (player, args) => {
@@ -306,14 +327,60 @@ chat.registerCmd('hora', (player, args) => {
     alt.emitClient(null, 'hora', args[0])
 })
 
-chat.registerCmd('obj', (player) => {
-    alt.emitClient(null, 'obj', player.pos)
-})
-
 chat.registerCmd('colete', (player) => {
     alt.emitClient(null, 'setColete', player)
 })
 
-chat.registerCmd('gamertag', (player) => {
-    alt.emitClient(null, 'tag', player)
+chat.registerCmd('obj', (player, args) => {
+    if (args.length === 0) {
+        chat.send(player, `Você deve informar o nome do objeto`)
+        chat.send(player, `Exemplo:`)
+        chat.send(player, `/obj stt_prop_ramp_jump_xl`)
+        return
+    }
+
+    // alt.emitClient(null, 'noty', player.pos)
+    alt.emitClient(player, 'tellHeading', args[0])
 })
+
+
+
+alt.onClient('responseHeading', (player, obj, heading, forwardVector) => {
+    try {
+        let distance = 15
+
+        const id = createEntity(
+            {
+                x: player.pos.x + forwardVector.x  * distance,
+                y: player.pos.y + forwardVector.y  * distance,
+                z: player.pos.z + forwardVector.z  * distance
+            },
+            {
+                type: "DROPPED_ITEM",
+                prop: obj,
+                name: obj,
+                heading: heading
+            }
+        )
+
+        entityIds.push(id)
+    } catch (e) {}
+})
+
+
+chat.registerCmd('rmo', (player) => {
+    if (entityIds.length === 0) {
+        chat.send(player, `Sem objetos irmão!! Endoidou?`)
+        return
+    }
+
+    const id = entityIds.pop()
+    destroyEntity(id)
+})
+
+
+
+alt.onClient('forkLiftEnable', player => {
+    alt.emitClient(player, 'forkLiftTrigger',  player.vehicle)
+})
+

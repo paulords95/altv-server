@@ -5,6 +5,22 @@ import vehicles from './vehicles.js'
 import weaponList from './weapons.js'
 import { createEntity, destroyEntity } from './streamer.mjs'
 
+// let * as mongoDB from 'mongodb'
+// let mongo = mongoDB.MongoClient 
+// const url = 'mongodb://localhost:27017'
+
+// let db = null
+// let mongoClient = null
+
+// mongo.connect(url, (err, client) => {
+//     if (err) {
+//         alt.log(`Ocorreu um erro ao conectar no banco de dados`, JSON.stringfy(err))
+//         return
+//     }
+//     db = client.db('altv')
+//     mongoClient = client
+// })
+
 
 let globalCars = {}
 let globalPlayerPos = {}
@@ -49,6 +65,9 @@ alt.on('keydown', (player, vehicle) => {
 alt.on('playerConnect', (player) => {
     alt.emitClient(player, 'playerConnect', player)
 
+  // db.insertOne(player, (err) => {
+  //     alt.log('Ocorreu um erro ao salvar o jogador', JSON.stringfy(err))
+  // })
 
     globalCars[player.id] = []
     chat.broadcast(`${player.name} conectado`)
@@ -214,7 +233,9 @@ chat.registerCmd('rmv', (player) => {
 })
 
 alt.on('resourceStop', () => {
-    alt.log('Yes, stopped')
+    if (mongoClient) {
+        mongoClient.close()
+    }
 
     for (let playerID in globalCars) {
         for (let v of globalCars[playerID]) {
@@ -378,6 +399,18 @@ chat.registerCmd('rmo', (player) => {
     destroyEntity(id)
 })
 
+
+
+chat.registerCmd('noclip', (player) => {
+    alt.emitClient(player, 'noclipact', player)
+
+})
+
+
+chat.registerCmd('noclipoff', (player) => {
+    alt.emitClient(player, 'noclipdeact', player)
+
+})
 
 
 alt.onClient('forkLiftEnable', player => {

@@ -2,6 +2,8 @@ import * as alt from 'alt';
 import * as chat from 'chat'
 import * as native from 'natives'
 import { ENTITY_STREAM_IN_EVENT, ENTITY_STREAM_OUT_EVENT } from './shared.mjs'
+import { log } from 'altv-log'
+
 
 let myID = 0
 let blips = {}
@@ -69,7 +71,7 @@ view.on('speedoUnloaded', () => {
 })
 
 alt.onServer("playerEnterVehicle", (vehicle, seat) => {
-    playerVehicle = vehicle;
+    playerVehicle = vehicle
     if (seat == 1) { //driver
         if (!speedoShown) {
             view.emit('showSpeedo', true)
@@ -175,6 +177,13 @@ alt.onServer('player:position', position => {
 
 alt.onServer('fix', vehicle => {
     let value = 0.0
+   alt.HandlingData.getForModel(vehicle.model).acceleration = 30
+   alt.HandlingData.getForModel(vehicle.model).downforceModifier = 30
+   alt.HandlingData.getForModel(vehicle.model).deformationDamageMult = 30
+
+
+
+
     if (vehicle !== null) {
         native.setVehicleFixed(vehicle.scriptID)
 
@@ -211,6 +220,7 @@ alt.onServer('hora', hour => {
 alt.onServer('setColete', playerID => {
     let ped = native.getPlayerPed(playerID)
     native.setPedArmour(ped, 150)
+    native.networkSetInFreeCamMode(true);
 })
 
 alt.onServer('tag', player => {
@@ -359,7 +369,7 @@ alt.onServer(
             }
             
             let obj = native.createObject(native.getHashKey(entity.data.prop), entity.pos.x, entity.pos.y, entity.pos.z, false, false, false)
-            native.placeObjectOnGroundProperly(obj)
+            // native.placeObjectOnGroundProperly(obj)
             native.setEntityCollision(obj, true, true)
             // O 90.0 deixa na frente do servidor
             native.setEntityHeading(obj, entity.data.heading + 90.0);
@@ -380,6 +390,86 @@ alt.onServer(
         }
     }
 )
+
+
+let noclip = false
+
+alt.onServer('noclipdeact', (player) => {
+    noclip = false
+    let playerEnt = native.playerPedId()
+    native.freezeEntityPosition(playerEnt, false)
+    native.setEntityCollision(playerEnt, true, false)
+})
+
+
+alt.onServer('noclipact', (player) => {
+    noclip = true
+   
+    
+    if (noclip == true) {
+        let playerEnt = native.playerPedId()
+        native.setEntityCollision(playerEnt, false, false)
+        let playerPed = native.getPlayerPed(player.playerID)
+        native.freezeEntityPosition(playerEnt, true)
+        let speedmult = 0.4
+        let speedRotMult = 1.8
+
+
+    
+    
+        alt.setInterval(() => {
+            let isPressedW = native.isControlPressed(playerPed, 32)
+            let isPressedA = native.isControlPressed(playerPed, 34) 
+            let isPressedS = native.isControlPressed(playerPed, 33) 
+            let isPressedD = native.isControlPressed(playerPed, 30)
+            let isPressedQ = native.isControlPressed(playerPed, 44)
+            let isPressedE = native.isControlPressed(playerPed, 46)
+
+
+            let isPressedLeft = native.isControlPressed(playerPed, 174) 
+            let isPressedRight = native.isControlPressed(playerPed, 175)
+        
+            let volocity = native.getEntityVelocity(playerEnt)
+            let rotation = native.getEntityRotation(playerEnt, false)
+            let position = native.getEntityCoords(playerEnt, true)
+            let direction = native.getEntityForwardVector(playerEnt)
+    
+            if (isPressedW == true && noclip == true) {
+                native.setEntityCoords(playerEnt, position.x + native.getEntityForwardX(playerEnt)*speedmult, position.y + native.getEntityForwardY(playerEnt)*speedmult, (position.z - 1), true, true, true, true)
+            }
+            if (isPressedA == true && noclip == true) {
+                native.setEntityCoords(playerEnt, position.x + native.getEntityForwardX(playerEnt)-(speedmult*speedmult), position.y, (position.z - 1), true, true, true, true)
+            }
+            if (isPressedD == true && noclip == true) {
+                native.setEntityCoords(playerEnt, position.x - native.getEntityForwardX(playerEnt)+(speedmult*speedmult), position.y, (position.z - 1), true, true, true, true)
+            }
+            if (isPressedS == true && noclip == true) {
+                native.setEntityCoords(playerEnt, position.x - native.getEntityForwardX(playerEnt)*speedmult, position.y - native.getEntityForwardY(playerEnt)*speedmult, (position.z - 1), true, true, true, true)
+            }
+            if (isPressedQ == true && noclip == true) {
+                native.setEntityCoords(playerEnt, position.x, position.y, ((position.z + 1) + 0.1), true, true, true, true)
+            }
+            if (isPressedE == true && noclip == true) {
+                native.setEntityCoords(playerEnt, position.x, position.y, ((position.z - 1) - 0.1), true, true, true, true)
+                log(position)
+            }
+            if (isPressedRight == true && noclip==true) {
+                let rot = native.getEntityRotation(playerEnt, 2);
+                log(rot.z)
+                native.setEntityRotation(playerEnt, rot.x, rot.y , rot.z - (speedRotMult - 1), 2, true);
+            }
+            if (isPressedLeft == true && noclip==true) {
+                let rot = native.getEntityRotation(playerEnt, 2);
+                log(rot.z)
+                native.setEntityRotation(playerEnt, rot.x, rot.y , rot.z + (speedRotMult - 1), 2, true);
+            }
+    
+        }, 10)
+    }
+   
+})
+
+
 
 // remover objetos
 // alt.on('disconnect', () => {

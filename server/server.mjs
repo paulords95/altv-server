@@ -5,22 +5,6 @@ import vehicles from './vehicles.js'
 import weaponList from './weapons.js'
 import { createEntity, destroyEntity } from './streamer.mjs'
 
-// let * as mongoDB from 'mongodb'
-// let mongo = mongoDB.MongoClient 
-// const url = 'mongodb://localhost:27017'
-
-// let db = null
-// let mongoClient = null
-
-// mongo.connect(url, (err, client) => {
-//     if (err) {
-//         alt.log(`Ocorreu um erro ao conectar no banco de dados`, JSON.stringfy(err))
-//         return
-//     }
-//     db = client.db('altv')
-//     mongoClient = client
-// })
-
 
 let globalCars = {}
 let globalPlayerPos = {}

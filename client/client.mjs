@@ -8,7 +8,7 @@ import { log } from 'altv-log'
 let myID = 0
 let blips = {}
 let ped = null
-// native.setPedInfiniteAmmoClip(ped, true)
+
 
 alt.onServer('playerConnect', player => {
     myID = player.id
@@ -332,21 +332,6 @@ alt.on('update', () => {
     alt.log('updatedCalled')
 })
 
-// alt.onServer('forkLiftTrigger', vehicle => {
-//     try {
-//         let value = 0.0
-//         if (vehicle !== null) {
-//             let interval = alt.setInterval(() => {
-//                 value += 0.005
-//                 if (value >= 1.0) {
-//                     alt.clearInterval(value)
-//                 }
-//                 native.setForkliftForkHeight(vehicle.scriptID, value)
-//             }, 50)
-//         }
-//     } catch(e) {}
-// })
-// 
 
 alt.onServer('tellHeading', objName => {
     let heading = native.getEntityHeading(alt.getLocalPlayer().scriptID)

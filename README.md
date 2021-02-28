@@ -1,1 +1,1 @@
-Gamemode freeroam em JavaScript para GTA 5: AltV
+Gamemode freeroam em JavaScript para GTA 5: AltV (Obsoleto)
